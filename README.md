@@ -2,7 +2,7 @@
 
 ## Live
 
-- 
+- [ai-movie-recommend.vercel.app](https://ai-movie-recommend.vercel.app/)
 
 
 ## Screenshots
