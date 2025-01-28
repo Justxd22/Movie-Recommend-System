@@ -44,10 +44,10 @@ export default function GenreGrid({ genres, selectedGenres, toggleGenre }) {
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
       {genres.map((genre) => (
         <GenreButton
-          key={genre.id}
+          key={genre.name}
           genre={genre}
-          selected={selectedGenres.has(genre.id)}
-          onClick={() => toggleGenre(genre.id)}
+          selected={selectedGenres.has(genre.name)}
+          onClick={() => toggleGenre(genre.name)}
         />
       ))}
     </div>
