@@ -1,0 +1,9 @@
+{
+    "rewrites": [
+      {
+        "source": "/api/:path*",
+        "destination": "https://movie-rec-production.up.railway.app/:path*"
+      }
+    ]
+  }
+  
