@@ -65,15 +65,15 @@ const handleAnimationComplete = () => {
 
 
 const predict = {
-    "Finding Nemo": 2003,
-    "Girl Who Leapt Through Time, The (Toki o kakeru sh\u00f4jo)": 2006,
-    "Howl's Moving Castle (Hauru no ugoku shiro)": 2004,
-    "Lord of the Rings: The Two Towers, The": 2002,
-    "Metropolis": 2001,
-    "Ponyo (Gake no ue no Ponyo)": 2008,
-    "Spirited Away (Sen to Chihiro no kamikakushi)": 2001,
-    "Up": 2009,
-    "WALL\u00b7E": 2008
+  "Finding Nemo": 2003,
+  "Girl Who Leapt Through Time, The (Toki o kakeru sh\u00f4jo)": 2006,
+  "Howl's Moving Castle (Hauru no ugoku shiro)": 2004,
+  "Lord of the Rings: The Two Towers, The": 2002,
+  "Metropolis": 2001,
+  "Ponyo (Gake no ue no Ponyo)": 2008,
+  "Spirited Away (Sen to Chihiro no kamikakushi)": 2001,
+  "Up": 2009,
+  "WALL\u00b7E": 2008
 }
 
 function App() {
@@ -95,18 +95,41 @@ function App() {
   };
 
   const fetchMovieDetails = async () => {
-    setPredictions(predict); // api call to flask backend
-    console.log("FINNDINNNG", predictions, predict);
+
+
+    // setPredictions(predict); // api call to flask backend
+    
+    
+    
     try {
-        const details = await find_movies(predict);
-        setMovies(details);
+      
+      const recommendationResponse = await fetch('/api/predict', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          user_vec: Array.from(selectedGenres)
+        })
+      });
+
+      if (!recommendationResponse.ok) {
+        throw new Error('Failed to fetch movie recommendations');
+      }
+      const recommendationData = await recommendationResponse.json();
+      console.log("FINNDINNNG", recommendationData, recommendationResponse, selectedGenres, JSON.stringify({
+        user_vec: Array.from(selectedGenres)
+      }));
+      
+      const details = await find_movies(recommendationData.predictions);
+      setMovies(details);
     } catch (err) {
-        setError(err.message);
+      setError(err.message);
     } finally {
-        setShowMov(true);
-        setShowAni(false);
+      setShowMov(true);
+      setShowAni(false);
     }
-};
+  };
 
   const toggleGenre = (genreId) => {
     const newSelected = new Set(selectedGenres);
@@ -123,7 +146,7 @@ function App() {
   return (
     <>
 
-       <div className="fixed inset-0 z-[-1]">
+      <div className="fixed inset-0 z-[-1]">
         <div
           className={`absolute inset-0 transition-opacity duration-1000 bg-cover bg-center opacity-100`}
           style={{ backgroundImage: `url(${cinema})` }}
@@ -157,7 +180,7 @@ function App() {
             <span>Start</span>
           </button>
         </div>
-      )} 
+      )}
       {showGenres && (
         <div>
           <BlurText
@@ -170,7 +193,7 @@ function App() {
             className="text-3xl mb-8"
           />
           <div className="max-w-4xl mx-auto">
-          <GenreGrid genres={genres} selectedGenres={selectedGenres} toggleGenre={toggleGenre} />
+            <GenreGrid genres={genres} selectedGenres={selectedGenres} toggleGenre={toggleGenre} />
           </div>
 
           {selectedGenres.size > 0 && (
@@ -187,49 +210,49 @@ function App() {
 
       {showAni && (
         <div>
-        <InfiniteMovieGrid posters={items} />
-        <Popcorn></Popcorn>
+          <InfiniteMovieGrid posters={items} />
+          <Popcorn></Popcorn>
         </div>
       )}
 
-      {showMov &&(
- <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 p-8">
- {Object.values(movies).map((movie) => (
-   movie.poster && (
-     <TiltedCard
-       key={movie.originalTitle}
-       imageSrc={movie.poster}
-       altText={`${movie.title} Poster`}
-       captionText={`${movie.title} (${movie.year})`}
-       containerHeight="400px"
-       containerWidth="300px"
-       imageHeight="400px"
-       imageWidth="300px"
-       rotateAmplitude={12}
-       scaleOnHover={1.2}
-       showMobileWarning={false}
-       showTooltip={true}
-       displayOverlayContent={true}
-       onClick={() => {window.open(movie.link, '_blank');}}
-       overlayContent={
+      {showMov && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 p-8">
+          {Object.values(movies).map((movie) => (
+            movie.poster && (
+              <TiltedCard
+                key={movie.originalTitle}
+                imageSrc={movie.poster}
+                altText={`${movie.title} Poster`}
+                captionText={`${movie.title} (${movie.year})`}
+                containerHeight="400px"
+                containerWidth="300px"
+                imageHeight="400px"
+                imageWidth="300px"
+                rotateAmplitude={12}
+                scaleOnHover={1.2}
+                showMobileWarning={false}
+                showTooltip={true}
+                displayOverlayContent={true}
+                onClick={() => { window.open(movie.link, '_blank'); }}
+                overlayContent={
 
-        movie.title
+                  movie.title
 
-      }
-      overlayContenttwo = {
-        <div>
-          <span>⭐ {movie.rating.toFixed(1)} ⏱️ {movie.runtime}</span>
-          <br></br>
+                }
+                overlayContenttwo={
+                  <div>
+                    <span>⭐ {movie.rating.toFixed(1)} ⏱️ {movie.runtime}</span>
+                    <br></br>
 
-          {movie.plot.split(" ").slice(0, 15).join(" ")}...
+                    {movie.plot.split(" ").slice(0, 15).join(" ")}...
 
+                  </div>
+                }
+              />
+            )
+          ))}
         </div>
-      }
-     />
-   )
- ))}
-</div>
-    
+
       )}
     </>
   );

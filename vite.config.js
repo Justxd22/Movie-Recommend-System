@@ -6,4 +6,13 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   assetsInclude: ["**/*.lottie"],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://movie-rec-production.up.railway.app',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
+  },
 })
