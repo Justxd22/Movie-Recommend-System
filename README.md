@@ -39,7 +39,7 @@ Ai movie Recommendation based off Tensorflow pretrained for fast predections liv
 - TMDB api for movie info
 - axios
 
-### Backend
+### AI & Backend
 - Railway
 - Docker
 - flask
