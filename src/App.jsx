@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo} from 'react';
 import BlurText from "./components/BlurText";
 import './App.css';
 import Noise from './components/Noise';
@@ -6,6 +6,10 @@ import cinema from "./assets/cinema.jpeg"
 import GenreGrid from './components/geners';
 import InfiniteMovieGrid from './components/GridMotion'
 import Popcorn from './components/Popcorn';
+import { find_movies } from './Movies';
+import TiltedCard from './components/TiltedCard';
+
+
 
 const genres = [
   { id: 'action', name: 'Action' },
@@ -53,14 +57,33 @@ const items = [
   '/posters/25.jpeg',
 
 ]
+
+
 const handleAnimationComplete = () => {
   console.log('Animation completed!');
 };
 
+
+const predict = {
+    "Finding Nemo": 2003,
+    "Girl Who Leapt Through Time, The (Toki o kakeru sh\u00f4jo)": 2006,
+    "Howl's Moving Castle (Hauru no ugoku shiro)": 2004,
+    "Lord of the Rings: The Two Towers, The": 2002,
+    "Metropolis": 2001,
+    "Ponyo (Gake no ue no Ponyo)": 2008,
+    "Spirited Away (Sen to Chihiro no kamikakushi)": 2001,
+    "Up": 2009,
+    "WALL\u00b7E": 2008
+}
+
 function App() {
   const [showGenres, setShowGenres] = useState(false); // State to toggle genre list
-  const [showAni, setShowAni] = useState(false); // State to toggle genre list
+  const [showAni, setShowAni] = useState(false); // State to toggle Animation
+  const [showMov, setShowMov] = useState(false); // State to toggle Movies list
   const [selectedGenres, setSelectedGenres] = useState(new Set());
+  const [movies, setMovies] = useState({});
+  const [predictions, setPredictions] = useState({});
+  const [error, setError] = useState(null);
 
   const handleButtonClick = () => {
     setShowGenres(true);
@@ -68,7 +91,22 @@ function App() {
   const handleButtonClickN = () => {
     setShowGenres(false);
     setShowAni(true);
+    fetchMovieDetails();
   };
+
+  const fetchMovieDetails = async () => {
+    setPredictions(predict); // api call to flask backend
+    console.log("FINNDINNNG", predictions, predict);
+    try {
+        const details = await find_movies(predict);
+        setMovies(details);
+    } catch (err) {
+        setError(err.message);
+    } finally {
+        setShowMov(true);
+        setShowAni(false);
+    }
+};
 
   const toggleGenre = (genreId) => {
     const newSelected = new Set(selectedGenres);
@@ -101,7 +139,7 @@ function App() {
       />
 
 
-      {!showGenres && !showAni && (
+      {!showGenres && !showAni && !showMov && (
         <div>
           <BlurText
             text={["Hello,", "Let's Find you a movie!"]}
@@ -152,6 +190,46 @@ function App() {
         <InfiniteMovieGrid posters={items} />
         <Popcorn></Popcorn>
         </div>
+      )}
+
+      {showMov &&(
+ <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 p-8">
+ {Object.values(movies).map((movie) => (
+   movie.poster && (
+     <TiltedCard
+       key={movie.originalTitle}
+       imageSrc={movie.poster}
+       altText={`${movie.title} Poster`}
+       captionText={`${movie.title} (${movie.year})`}
+       containerHeight="400px"
+       containerWidth="300px"
+       imageHeight="400px"
+       imageWidth="300px"
+       rotateAmplitude={12}
+       scaleOnHover={1.2}
+       showMobileWarning={false}
+       showTooltip={true}
+       displayOverlayContent={true}
+       onClick={() => {window.open(movie.link, '_blank');}}
+       overlayContent={
+
+        movie.title
+
+      }
+      overlayContenttwo = {
+        <div>
+          <span>⭐ {movie.rating.toFixed(1)} ⏱️ {movie.runtime}</span>
+          <br></br>
+
+          {movie.plot.split(" ").slice(0, 15).join(" ")}...
+
+        </div>
+      }
+     />
+   )
+ ))}
+</div>
+    
       )}
     </>
   );
