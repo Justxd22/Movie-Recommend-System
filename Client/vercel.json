@@ -2,7 +2,7 @@
     "rewrites": [
       {
         "source": "/api/:path*",
-        "destination": "https://movie-rec-production.up.railway.app/:path*"
+        "destination": "https://movie-rec-ai-production.up.railway.app/:path*"
       }
     ]
   }
